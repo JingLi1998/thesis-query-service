@@ -1,3 +1,4 @@
+import createHttpError from "http-errors";
 import {
   AssetUnit,
   Batch,
@@ -14,16 +15,32 @@ import {
 type StockUnitResult = StockUnit & Record<string, any>;
 
 export const getStockUnits = async () => {
-  const stocks: StockUnitResult[] = await StockUnit.find({
+  const stock_units: StockUnitResult[] = await StockUnit.find({
     relations: ["batches", "transactions"],
   });
-  stocks.forEach((stock) => {
-    const isAggregated = stock.batches.some(
+  stock_units.forEach((stock_unit) => {
+    const isAggregated = stock_unit.batches.some(
       (batch) => batch.status === BatchStatus.IN_PROGRESS
     );
-    stock.isAggregated = isAggregated;
+    stock_unit.isAggregated = isAggregated;
   });
-  return stocks;
+  return stock_units;
+};
+
+export const getStockUnit = async (gtin_serial_number: string) => {
+  const stock_unit:
+    | StockUnitResult
+    | undefined = await StockUnit.findOne(gtin_serial_number, {
+    relations: ["batches", "transactions"],
+  });
+  if (!stock_unit) {
+    throw createHttpError(400, "No result found");
+  }
+  const isAggregated = stock_unit.batches.some(
+    (batch) => batch.status === BatchStatus.IN_PROGRESS
+  );
+  stock_unit.isAggregated = isAggregated;
+  return stock_unit;
 };
 
 type BatchResult = Batch & Record<string, any>;

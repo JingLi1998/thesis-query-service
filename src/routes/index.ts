@@ -13,6 +13,14 @@ router.get(
 );
 
 router.get(
+  "/stock-unit/:id",
+  asyncMiddleware(async (req, res) => {
+    const stock_unit = await controller.getStockUnit(req.params.id);
+    return res.status(200).json({ stock_unit });
+  })
+);
+
+router.get(
   "/batches",
   asyncMiddleware(async (_req, res) => {
     const batches = await controller.getBatches();
