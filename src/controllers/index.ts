@@ -137,7 +137,7 @@ export const getAssetUnit = async (grai: string) => {
   const asset_unit: AssetUnitResult | undefined = await AssetUnit.findOne(
     grai,
     {
-      relations: ["logistics", "transactions"],
+      relations: ["logistics"],
     }
   );
   if (!asset_unit) {
