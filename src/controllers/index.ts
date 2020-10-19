@@ -156,7 +156,9 @@ export const getTransportUnits = async () => {
 };
 
 export const getTransportUnit = async (giai: string) => {
-  const transport_unit: BatchResult | undefined = await Batch.findOne(giai, {
+  const transport_unit:
+    | TransportUnitResult
+    | undefined = await TransportUnit.findOne(giai, {
     relations: ["transports", "transactions"],
   });
   if (!transport_unit) {
