@@ -28,11 +28,12 @@ export const getStockUnits = async () => {
 };
 
 export const getStockUnit = async (gtin_serial_number: string) => {
-  const stock_unit:
-    | StockUnitResult
-    | undefined = await StockUnit.findOne(gtin_serial_number, {
-    relations: ["batches", "transactions"],
-  });
+  const stock_unit: StockUnitResult | undefined = await StockUnit.findOne(
+    gtin_serial_number,
+    {
+      relations: ["batches", "transactions"],
+    }
+  );
   if (!stock_unit) {
     throw createHttpError(400, "No result found");
   }
@@ -58,6 +59,23 @@ export const getBatches = async () => {
   return batches;
 };
 
+export const getBatch = async (gtin_batch_number: string) => {
+  const batch: BatchResult | undefined = await Batch.findOne(
+    gtin_batch_number,
+    {
+      relations: ["logistics", "transactions"],
+    }
+  );
+  if (!batch) {
+    throw createHttpError(400, "No result found");
+  }
+  const isAggregated = batch.logistics.some(
+    (logistic) => logistic.status === LogisticStatus.IN_PROGRESS
+  );
+  batch.isAggregated = isAggregated;
+  return batch;
+};
+
 type LogisticResult = Logistic & Record<string, any>;
 
 export const getLogistics = async () => {
@@ -73,6 +91,20 @@ export const getLogistics = async () => {
   return logistics;
 };
 
+export const getLogistic = async (sscc: string) => {
+  const logistic: LogisticResult | undefined = await Logistic.findOne(sscc, {
+    relations: ["transports", "transactions"],
+  });
+  if (!logistic) {
+    throw createHttpError(400, "No result found");
+  }
+  const isAggregated = logistic.transports.some(
+    (transport) => transport.status === TransportStatus.IN_PROGRESS
+  );
+  logistic.isAggregated = isAggregated;
+  return logistic;
+};
+
 type TransportResult = Transport & Record<string, any>;
 
 export const getTransports = async () => {
@@ -80,6 +112,16 @@ export const getTransports = async () => {
     relations: ["logistics", "transport_unit", "transactions"],
   });
   return transports;
+};
+
+export const getTransport = async (id: string) => {
+  const transport = await Batch.findOne(id, {
+    relations: ["transactions"],
+  });
+  if (!transport) {
+    throw createHttpError(400, "No result found");
+  }
+  return transport;
 };
 
 type AssetUnitResult = AssetUnit & Record<string, any>;
@@ -91,6 +133,19 @@ export const getAssetUnits = async () => {
   return asset_units;
 };
 
+export const getAssetUnit = async (grai: string) => {
+  const asset_unit: AssetUnitResult | undefined = await AssetUnit.findOne(
+    grai,
+    {
+      relations: ["logistics", "transactions"],
+    }
+  );
+  if (!asset_unit) {
+    throw createHttpError(400, "No result found");
+  }
+  return asset_unit;
+};
+
 type TransportUnitResult = TransportUnit & Record<string, any>;
 
 export const getTransportUnits = async () => {
@@ -98,6 +153,16 @@ export const getTransportUnits = async () => {
     relations: ["transports"],
   });
   return transport_units;
+};
+
+export const getTransportUnit = async (giai: string) => {
+  const transport_unit: BatchResult | undefined = await Batch.findOne(giai, {
+    relations: ["transports", "transactions"],
+  });
+  if (!transport_unit) {
+    throw createHttpError(400, "No result found");
+  }
+  return transport_unit;
 };
 
 export const getLocations = async () => {

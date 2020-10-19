@@ -29,6 +29,14 @@ router.get(
 );
 
 router.get(
+  "/batch/:id",
+  asyncMiddleware(async (req, res) => {
+    const batch = await controller.getBatch(req.params.id);
+    return res.status(200).json({ batch });
+  })
+);
+
+router.get(
   "/logistics",
   asyncMiddleware(async (_req, res) => {
     const logistics = await controller.getLogistics();
@@ -37,10 +45,10 @@ router.get(
 );
 
 router.get(
-  "/transports",
-  asyncMiddleware(async (_req, res) => {
-    const transports = await controller.getTransports();
-    return res.status(200).json({ transports });
+  "/logistic/:id",
+  asyncMiddleware(async (req, res) => {
+    const logistic = await controller.getLogistic(req.params.id);
+    return res.status(200).json({ logistic });
   })
 );
 
@@ -53,10 +61,42 @@ router.get(
 );
 
 router.get(
+  "/asset-unit/:id",
+  asyncMiddleware(async (req, res) => {
+    const asset_unit = await controller.getAssetUnit(req.params.id);
+    return res.status(200).json({ asset_unit });
+  })
+);
+
+router.get(
+  "/transports",
+  asyncMiddleware(async (_req, res) => {
+    const transports = await controller.getTransports();
+    return res.status(200).json({ transports });
+  })
+);
+
+router.get(
+  "/transport/:id",
+  asyncMiddleware(async (req, res) => {
+    const transport = await controller.getTransport(req.params.id);
+    return res.status(200).json({ transport });
+  })
+);
+
+router.get(
   "/transport-units",
   asyncMiddleware(async (_req, res) => {
     const transport_units = await controller.getTransportUnits();
     return res.status(200).json({ transport_units });
+  })
+);
+
+router.get(
+  "/transport-unit/:id",
+  asyncMiddleware(async (req, res) => {
+    const transport_unit = await controller.getTransportUnit(req.params.id);
+    return res.status(200).json({ transport_unit });
   })
 );
 
