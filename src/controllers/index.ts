@@ -159,7 +159,7 @@ export const getTransportUnit = async (giai: string) => {
   const transport_unit:
     | TransportUnitResult
     | undefined = await TransportUnit.findOne(giai, {
-    relations: ["transports", "transactions"],
+    relations: ["transports"],
   });
   if (!transport_unit) {
     throw createHttpError(400, "No result found");
