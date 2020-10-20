@@ -1,4 +1,5 @@
 import createHttpError from "http-errors";
+import { In } from "typeorm";
 import {
   AssetUnit,
   Batch,
@@ -51,11 +52,59 @@ export const getStockUnit = async (gtin_serial_number: string) => {
   if (!stock_unit) {
     throw createHttpError(400, "No result found");
   }
+  const batchIds: number[] = [];
+  stock_unit?.batches?.forEach((batch) => batchIds.push(batch.gtin_batch));
+  if (!stock_unit) {
+    throw createHttpError(400, "No result found");
+  }
+  const batches = await Batch.find({
+    where: { gtin_batch: In(batchIds) },
+    relations: [
+      "logistics",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
+  });
+  const logisticIds: number[] = [];
+  batches.forEach((batch) =>
+    batch.logistics?.forEach((logistic) => logisticIds.push(logistic.sscc))
+  );
+  const logistics = await Logistic.find({
+    where: { sscc: In(logisticIds) },
+    relations: [
+      "transports",
+      "asset_unit",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
+  });
+  const transportIds: number[] = [];
+  logistics.forEach((logistic) =>
+    logistic.transports?.forEach((transport) => transportIds.push(transport.id))
+  );
+  const transports = await Transport.find({
+    where: { id: In(transportIds) },
+    relations: [
+      "transport_unit",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
+  });
+
   const isAggregated = stock_unit.batches?.some(
     (batch) => batch.status === BatchStatus.IN_PROGRESS
   );
   stock_unit.isAggregated = isAggregated;
-  return stock_unit;
+  return { stock_unit, batches, logistics, transports };
 };
 
 type BatchResult = Batch & Record<string, any>;
@@ -98,11 +147,41 @@ export const getBatch = async (gtin_batch_number: string) => {
   if (!batch) {
     throw createHttpError(400, "No result found");
   }
+  const logisticIds: number[] = [];
+  batch.logistics?.forEach((logistic) => logisticIds.push(logistic.sscc));
+  const logistics = await Logistic.find({
+    where: { sscc: In(logisticIds) },
+    relations: [
+      "transports",
+      "asset_unit",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
+  });
+  const transportIds: number[] = [];
+  logistics.forEach((logistic) =>
+    logistic.transports?.forEach((transport) => transportIds.push(transport.id))
+  );
+  const transports = await Transport.find({
+    where: { id: In(transportIds) },
+    relations: [
+      "transport_unit",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
+  });
+
   const isAggregated = batch.logistics?.some(
     (logistic) => logistic.status === LogisticStatus.IN_PROGRESS
   );
   batch.isAggregated = isAggregated;
-  return batch;
+  return { batch, logistics, transports };
 };
 
 type LogisticResult = Logistic & Record<string, any>;
@@ -143,11 +222,24 @@ export const getLogistic = async (sscc: string) => {
   if (!logistic) {
     throw createHttpError(400, "No result found");
   }
+  const transportIds: number[] = [];
+  logistic.transports?.forEach((transport) => transportIds.push(transport.id));
+  const transports = await Transport.find({
+    where: { id: In(transportIds) },
+    relations: [
+      "transport_unit",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
+  });
   const isAggregated = logistic.transports?.some(
     (transport) => transport.status === TransportStatus.IN_PROGRESS
   );
   logistic.isAggregated = isAggregated;
-  return logistic;
+  return { logistic, transports };
 };
 
 type TransportResult = Transport & Record<string, any>;
