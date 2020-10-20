@@ -16,10 +16,17 @@ type StockUnitResult = StockUnit & Record<string, any>;
 
 export const getStockUnits = async () => {
   const stock_units: StockUnitResult[] = await StockUnit.find({
-    relations: ["batches", "transactions"],
+    relations: [
+      "batches",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
   });
   stock_units.forEach((stock_unit) => {
-    const isAggregated = stock_unit.batches.some(
+    const isAggregated = stock_unit.batches?.some(
       (batch) => batch.status === BatchStatus.IN_PROGRESS
     );
     stock_unit.isAggregated = isAggregated;
@@ -31,13 +38,20 @@ export const getStockUnit = async (gtin_serial_number: string) => {
   const stock_unit: StockUnitResult | undefined = await StockUnit.findOne(
     gtin_serial_number,
     {
-      relations: ["batches", "transactions"],
+      relations: [
+        "batches",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
     }
   );
   if (!stock_unit) {
     throw createHttpError(400, "No result found");
   }
-  const isAggregated = stock_unit.batches.some(
+  const isAggregated = stock_unit.batches?.some(
     (batch) => batch.status === BatchStatus.IN_PROGRESS
   );
   stock_unit.isAggregated = isAggregated;
@@ -48,10 +62,18 @@ type BatchResult = Batch & Record<string, any>;
 
 export const getBatches = async () => {
   const batches: BatchResult[] = await Batch.find({
-    relations: ["stock_units", "logistics", "transactions"],
+    relations: [
+      "stock_units",
+      "logistics",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
   });
   batches.forEach((batch) => {
-    const isAggregated = batch.logistics.some(
+    const isAggregated = batch.logistics?.some(
       (logistic) => logistic.status === LogisticStatus.IN_PROGRESS
     );
     batch.isAggregated = isAggregated;
@@ -63,13 +85,20 @@ export const getBatch = async (gtin_batch_number: string) => {
   const batch: BatchResult | undefined = await Batch.findOne(
     gtin_batch_number,
     {
-      relations: ["logistics", "transactions"],
+      relations: [
+        "logistics",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
     }
   );
   if (!batch) {
     throw createHttpError(400, "No result found");
   }
-  const isAggregated = batch.logistics.some(
+  const isAggregated = batch.logistics?.some(
     (logistic) => logistic.status === LogisticStatus.IN_PROGRESS
   );
   batch.isAggregated = isAggregated;
@@ -80,10 +109,19 @@ type LogisticResult = Logistic & Record<string, any>;
 
 export const getLogistics = async () => {
   const logistics: LogisticResult[] = await Logistic.find({
-    relations: ["batches", "asset_unit", "transports", "transactions"],
+    relations: [
+      "batches",
+      "asset_unit",
+      "transports",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
   });
   logistics.forEach((logistic) => {
-    const isAggregated = logistic.transports.some(
+    const isAggregated = logistic.transports?.some(
       (transport) => transport.status === TransportStatus.IN_PROGRESS
     );
     logistic.isAggregated = isAggregated;
@@ -93,12 +131,19 @@ export const getLogistics = async () => {
 
 export const getLogistic = async (sscc: string) => {
   const logistic: LogisticResult | undefined = await Logistic.findOne(sscc, {
-    relations: ["transports", "transactions"],
+    relations: [
+      "transports",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
   });
   if (!logistic) {
     throw createHttpError(400, "No result found");
   }
-  const isAggregated = logistic.transports.some(
+  const isAggregated = logistic.transports?.some(
     (transport) => transport.status === TransportStatus.IN_PROGRESS
   );
   logistic.isAggregated = isAggregated;
@@ -109,14 +154,30 @@ type TransportResult = Transport & Record<string, any>;
 
 export const getTransports = async () => {
   const transports: TransportResult[] = await Transport.find({
-    relations: ["logistics", "transport_unit", "transactions"],
+    relations: [
+      "logistics",
+      "transport_unit",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
   });
   return transports;
 };
 
 export const getTransport = async (id: string) => {
   const transport = await Batch.findOne(id, {
-    relations: ["transactions"],
+    relations: [
+      "logistics",
+      "transport_unit",
+      "transactions",
+      "transactions.what_stock",
+      "transactions.what_batch",
+      "transactions.what_logistic",
+      "transactions.what_transport",
+    ],
   });
   if (!transport) {
     throw createHttpError(400, "No result found");
