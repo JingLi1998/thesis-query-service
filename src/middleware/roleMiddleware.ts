@@ -9,7 +9,7 @@ export const roleMiddleware = async (
   if (req.user.role && req.user.role === "admin") {
     console.log("admin-privilege");
     return next();
-  } else if (req.params.id) {
+  } else {
     const resource_id = req.params.id;
     const resource_type = req.path.substring(1);
     const user_email = req.user.email;
@@ -24,9 +24,8 @@ export const roleMiddleware = async (
       console.log("resource-privilege");
       return next();
     }
-  } else {
-    return res
-      .status(403)
-      .json({ status: 403, message: "Insufficient access privileges" });
   }
+  return res
+    .status(403)
+    .json({ status: 403, message: "Insufficient access privileges" });
 };
