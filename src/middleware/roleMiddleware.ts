@@ -10,7 +10,7 @@ export const roleMiddleware = async (
     console.log("admin-privilege");
     return next();
   } else {
-    const resource_type = req.path.substring(0, req.path.lastIndexOf("/"));
+    const resource_type = req.path.substring(1, req.path.lastIndexOf("/"));
     const resource_id = req.params.id;
     const user_email = req.user.email;
     const resource_policy = await ResourcePolicy.findOne({
