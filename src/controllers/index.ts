@@ -323,3 +323,11 @@ export const getTransportUnit = async (giai: string) => {
 export const getLocations = async () => {
   return await Location.find();
 };
+
+export const getLocation = async (gln: string) => {
+  const location = await Location.findOne(gln);
+  if (!location) {
+    throw createHttpError(400, "No result found");
+  }
+  return location;
+};

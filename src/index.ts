@@ -6,6 +6,8 @@ import "reflect-metadata";
 import { createConnection } from "typeorm";
 import { router } from "./routes";
 import cors from "cors";
+import "./config/passport";
+import { jwtMiddleware } from "./middleware/jwtMiddleware";
 
 const main = async () => {
   dotenv.config();
@@ -32,7 +34,7 @@ const main = async () => {
   // json body parser
   app.use(express.json());
 
-  app.use("/api", router);
+  app.use("/api", jwtMiddleware, router);
 
   // custom error handler
   app.use(

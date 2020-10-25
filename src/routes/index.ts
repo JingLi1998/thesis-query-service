@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { asyncMiddleware } from "../middleware/asyncMiddleware";
 import * as controller from "../controllers";
+import { roleMiddleware } from "../middleware/roleMiddleware";
 
 export const router = Router();
 
@@ -14,6 +15,7 @@ router.get(
 
 router.get(
   "/stock-unit/:id",
+  roleMiddleware,
   asyncMiddleware(async (req, res) => {
     const stock_unit = await controller.getStockUnit(req.params.id);
     return res.status(200).json({ stock_unit });
@@ -30,6 +32,7 @@ router.get(
 
 router.get(
   "/batch/:id",
+  roleMiddleware,
   asyncMiddleware(async (req, res) => {
     const batch = await controller.getBatch(req.params.id);
     return res.status(200).json({ batch });
@@ -46,6 +49,7 @@ router.get(
 
 router.get(
   "/logistic/:id",
+  roleMiddleware,
   asyncMiddleware(async (req, res) => {
     const logistic = await controller.getLogistic(req.params.id);
     return res.status(200).json({ logistic });
@@ -62,6 +66,7 @@ router.get(
 
 router.get(
   "/asset-unit/:id",
+  roleMiddleware,
   asyncMiddleware(async (req, res) => {
     const asset_unit = await controller.getAssetUnit(req.params.id);
     return res.status(200).json({ asset_unit });
@@ -78,6 +83,7 @@ router.get(
 
 router.get(
   "/transport/:id",
+  roleMiddleware,
   asyncMiddleware(async (req, res) => {
     const transport = await controller.getTransport(req.params.id);
     return res.status(200).json({ transport });
@@ -94,6 +100,7 @@ router.get(
 
 router.get(
   "/transport-unit/:id",
+  roleMiddleware,
   asyncMiddleware(async (req, res) => {
     const transport_unit = await controller.getTransportUnit(req.params.id);
     return res.status(200).json({ transport_unit });
@@ -105,5 +112,14 @@ router.get(
   asyncMiddleware(async (_req, res) => {
     const locations = await controller.getLocations();
     return res.status(200).json({ locations });
+  })
+);
+
+router.get(
+  "/location/:id",
+  roleMiddleware,
+  asyncMiddleware(async (req, res) => {
+    const location = await controller.getLocation(req.params.id);
+    return res.status(200).json({ location });
   })
 );
