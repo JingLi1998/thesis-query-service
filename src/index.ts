@@ -28,7 +28,7 @@ const main = async () => {
 
   app.use(
     cors({
-      origin: "http://localhost:3000, https://www.trackntrace.network",
+      origin: ["http://localhost:3000", "https://www.trackntrace.network"],
       credentials: true,
     })
   );
