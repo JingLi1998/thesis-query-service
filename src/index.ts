@@ -8,6 +8,7 @@ import { router } from "./routes";
 import cors from "cors";
 import "./config/passport";
 import { jwtMiddleware } from "./middleware/jwtMiddleware";
+import cookieParser from "cookie-parser";
 
 const main = async () => {
   dotenv.config();
@@ -26,12 +27,9 @@ const main = async () => {
 
   const app = express();
 
-  app.use(
-    cors({
-      origin: ["http://localhost:3000", "https://www.trackntrace.network"],
-      credentials: true,
-    })
-  );
+  app.use(cors());
+
+  app.use(cookieParser());
 
   // log http requests
   app.use(morgan("dev"));
