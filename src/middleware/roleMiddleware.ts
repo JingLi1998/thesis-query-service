@@ -13,6 +13,7 @@ export const roleMiddleware = async (
     const resource_id = req.params.id;
     const resource_type = req.path.substring(1);
     const user_email = req.user.email;
+    console.log(resource_id, resource_type, user_email);
     const resource_policy = await ResourcePolicy.findOne({
       where: {
         resource_id,
@@ -20,6 +21,7 @@ export const roleMiddleware = async (
         user_email,
       },
     });
+    console.log(resource_policy);
     if (resource_policy && resource_policy.permission === "read") {
       console.log("resource-privilege");
       return next();
