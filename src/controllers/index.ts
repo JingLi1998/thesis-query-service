@@ -212,6 +212,7 @@ export const getLogistic = async (sscc: string) => {
   const logistic: LogisticResult | undefined = await Logistic.findOne(sscc, {
     relations: [
       "transports",
+      "asset_unit",
       "transactions",
       "transactions.what_stock",
       "transactions.what_batch",
@@ -260,7 +261,7 @@ export const getTransports = async () => {
 };
 
 export const getTransport = async (id: string) => {
-  const transport = await Batch.findOne(id, {
+  const transport = await Transport.findOne(id, {
     relations: [
       "logistics",
       "transport_unit",
