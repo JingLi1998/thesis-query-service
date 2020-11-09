@@ -57,48 +57,57 @@ export const getStockUnit = async (gtin_serial_number: string) => {
   if (!stock_unit) {
     throw createHttpError(400, "No result found");
   }
-  const batches = await Batch.find({
-    where: { gtin_batch: In(batchIds) },
-    relations: [
-      "logistics",
-      "transactions",
-      "transactions.what_stock",
-      "transactions.what_batch",
-      "transactions.what_logistic",
-      "transactions.what_transport",
-    ],
-  });
+  let batches: Batch[] = [];
+  if (batchIds.length) {
+    batches = await Batch.find({
+      where: { gtin_batch: In(batchIds) },
+      relations: [
+        "logistics",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
+    });
+  }
   const logisticIds: number[] = [];
   batches.forEach((batch) =>
     batch.logistics?.forEach((logistic) => logisticIds.push(logistic.sscc))
   );
-  const logistics = await Logistic.find({
-    where: { sscc: In(logisticIds) },
-    relations: [
-      "transports",
-      "asset_unit",
-      "transactions",
-      "transactions.what_stock",
-      "transactions.what_batch",
-      "transactions.what_logistic",
-      "transactions.what_transport",
-    ],
-  });
+  let logistics: Logistic[] = [];
+  if (logisticIds.length) {
+    logistics = await Logistic.find({
+      where: { sscc: In(logisticIds) },
+      relations: [
+        "transports",
+        "asset_unit",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
+    });
+  }
   const transportIds: number[] = [];
   logistics.forEach((logistic) =>
     logistic.transports?.forEach((transport) => transportIds.push(transport.id))
   );
-  const transports = await Transport.find({
-    where: { id: In(transportIds) },
-    relations: [
-      "transport_unit",
-      "transactions",
-      "transactions.what_stock",
-      "transactions.what_batch",
-      "transactions.what_logistic",
-      "transactions.what_transport",
-    ],
-  });
+  let transports: Transport[] = [];
+  if (transportIds.length) {
+    transports = await Transport.find({
+      where: { id: In(transportIds) },
+      relations: [
+        "transport_unit",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
+    });
+  }
 
   const isAggregated = stock_unit.batches?.some(
     (batch) => batch.status === BatchStatus.IN_PROGRESS
@@ -149,34 +158,39 @@ export const getBatch = async (gtin_batch_number: string) => {
   }
   const logisticIds: number[] = [];
   batch.logistics?.forEach((logistic) => logisticIds.push(logistic.sscc));
-  const logistics = await Logistic.find({
-    where: { sscc: In(logisticIds) },
-    relations: [
-      "transports",
-      "asset_unit",
-      "transactions",
-      "transactions.what_stock",
-      "transactions.what_batch",
-      "transactions.what_logistic",
-      "transactions.what_transport",
-    ],
-  });
+  let logistics: Logistic[] = [];
+  if (logisticIds.length) {
+    logistics = await Logistic.find({
+      where: { sscc: In(logisticIds) },
+      relations: [
+        "transports",
+        "asset_unit",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
+    });
+  }
   const transportIds: number[] = [];
   logistics.forEach((logistic) =>
     logistic.transports?.forEach((transport) => transportIds.push(transport.id))
   );
-  const transports = await Transport.find({
-    where: { id: In(transportIds) },
-    relations: [
-      "transport_unit",
-      "transactions",
-      "transactions.what_stock",
-      "transactions.what_batch",
-      "transactions.what_logistic",
-      "transactions.what_transport",
-    ],
-  });
-
+  let transports: Transport[] = [];
+  if (transportIds.length) {
+    await Transport.find({
+      where: { id: In(transportIds) },
+      relations: [
+        "transport_unit",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
+    });
+  }
   const isAggregated = batch.logistics?.some(
     (logistic) => logistic.status === LogisticStatus.IN_PROGRESS
   );
@@ -225,17 +239,20 @@ export const getLogistic = async (sscc: string) => {
   }
   const transportIds: number[] = [];
   logistic.transports?.forEach((transport) => transportIds.push(transport.id));
-  const transports = await Transport.find({
-    where: { id: In(transportIds) },
-    relations: [
-      "transport_unit",
-      "transactions",
-      "transactions.what_stock",
-      "transactions.what_batch",
-      "transactions.what_logistic",
-      "transactions.what_transport",
-    ],
-  });
+  let transports: Transport[] = [];
+  if (transportIds.length) {
+    transports = await Transport.find({
+      where: { id: In(transportIds) },
+      relations: [
+        "transport_unit",
+        "transactions",
+        "transactions.what_stock",
+        "transactions.what_batch",
+        "transactions.what_logistic",
+        "transactions.what_transport",
+      ],
+    });
+  }
   const isAggregated = logistic.transports?.some(
     (transport) => transport.status === TransportStatus.IN_PROGRESS
   );
